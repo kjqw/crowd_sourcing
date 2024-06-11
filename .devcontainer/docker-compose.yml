@@ -1,0 +1,27 @@
+services:
+  crowd_sourcing:
+    container_name: crowd_sourcing
+    image: pytorch:transformers
+    # build:
+    #   context: ./
+    #   dockerfile: ./Dockerfile
+    volumes:
+      - type: bind
+        source: /home/kjqw/university/.cache
+        target: /workspace/.cache
+      - type: bind
+        source: ../
+        target: /workspace/crowd_sourcing
+    working_dir: /workspace
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ gpu ]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - HF_HOME=/workspace/.cache/huggingface
+    command: sleep infinity

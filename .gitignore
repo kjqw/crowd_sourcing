@@ -1,0 +1,16 @@
+# 全てのファイルを無視
+*
+
+!.gitignore
+!README.md
+
+!/.devcontainer/
+!/.devcontainer/**
+
+!/crowdsourcing/
+!/crowdsourcing/**
+
+!/demo/
+!/demo/openai/
+!/demo/openai/**
+/demo/openai/data/.env

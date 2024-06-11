@@ -1,0 +1,46 @@
+{
+    "name": "crowd_sourcing",
+    "dockerComposeFile": "./docker-compose.yml",
+    "service": "crowd_sourcing",
+    "workspaceFolder": "/workspace",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.fontFamily": "HackGen, Consolas, 'Courier New', monospace",
+                "editor.wordWrap": "on",
+                "editor.tabSize": 4,
+                "[markdown]": {
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll.markdownlint": "explicit"
+                    }
+                },
+                "python.defaultInterpreterPath": "/opt/conda/envs/transformers/bin/python",
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": "explicit"
+                    }
+                },
+                "isort.args": [
+                    "--profile",
+                    "black"
+                ],
+                "github.copilot.enable": {
+                    "markdown": "true"
+                }
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.black-formatter",
+                "ms-python.isort",
+                "ms-toolsai.jupyter",
+                "yzhang.markdown-all-in-one",
+                "davidanson.vscode-markdownlint",
+                "mhutchie.git-graph",
+                "eamodio.gitlens",
+                "github.copilot"
+            ]
+        }
+    }
+}
