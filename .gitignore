@@ -11,6 +11,8 @@
 !/crowdsourcing/**
 
 !/demo/
-!/demo/openai/
-!/demo/openai/**
-/demo/openai/data/.env
+!/demo/**
+
+/demo/bert/*.pth
+/demo/data/.env
+/demo/isort.py
