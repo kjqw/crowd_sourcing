@@ -13,6 +13,6 @@
 !/demo/
 !/demo/**
 
-/demo/bert/*.pth
+/demo/bert/data/**
 /demo/data/.env
 /demo/isort.py
