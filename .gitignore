@@ -1,6 +1,7 @@
 # 全てのファイルを無視
 *
 
+# 特定のファイルとディレクトリを除外
 !.gitignore
 !.gitattributes
 !README.md
@@ -14,6 +15,9 @@
 !/demo/
 !/demo/**
 
-/demo/bert/data/**
 /demo/data/.env
 /demo/isort.py
+
+# 特定の拡張子のファイルを無視
+*.safetensors
+*.pth
