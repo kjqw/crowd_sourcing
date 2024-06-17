@@ -1,15 +1,25 @@
 # README
 
+整備中
+
 ## 必要なライブラリ
 
+- pandas
+- matplotlib
+- japanize-matplotlib
+- scikit-learn
+- dotenv
 - pytorch
 - transformers
 - openai
-- scikit-learn
-- pandas
-- dotenv
 
 ## 使い方
+
+### bert
+
+1. `demo/bert/preprocessor.ipynb`を実行
+2. `demo/bert/train.ipynb`を実行
+3. `demo/bert/evaluate.ipynb`を実行
 
 ### openai
 
@@ -19,20 +29,20 @@
    OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
    ```
 
-### bert
-
-整備中
-
 ## メモ
+
+### エラー対処
 
 ```sh
 sudo apt install -y libtiff5
 ```
 
-`libtiff5`がないとmambaでインストールできなくなっていた。noarchの部分で途中停止した。
+`libtiff5`がないとmambaでインストールできなくなっていた。`mamba install ...`の際、noarchの部分で途中停止した。
+
+### nbstripout
 
 ```sh
-mamba install -y pandas openai python-dotenv scikit-learn nbstripout
+mamba install -y nbstripout
 ```
 
 ```sh
