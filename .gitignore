@@ -16,4 +16,5 @@
 
 /demo/bert/data/**
 /demo/data/**
+/demo/bert/results/**
 /demo/isort.py
