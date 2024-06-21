@@ -15,5 +15,5 @@
 !/demo/**
 
 /demo/bert/data/**
-/demo/data/.env
+/demo/data/**
 /demo/isort.py
