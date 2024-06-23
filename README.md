@@ -34,10 +34,11 @@
 ### エラー対処
 
 ```sh
-sudo apt install -y libtiff5
+sudp apt update && sudo apt install -y libtiff5
 ```
 
 `libtiff5`がないとmambaでインストールできなくなっていた。`mamba install ...`の際、noarchの部分で途中停止した。
+Pythonで`transformers`をインポートする際にもエラーが出た。
 
 ### nbstripout
 
