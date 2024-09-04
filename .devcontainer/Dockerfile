@@ -50,4 +50,6 @@ RUN sudo apt update && sudo apt upgrade -y
 CMD ["/bin/zsh"]
 
 # パッケージのインストール
+USER root
 RUN conda install -y pandas matplotlib scikit-learn transformers openai python-dotenv
+USER $USERNAME
