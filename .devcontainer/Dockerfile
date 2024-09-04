@@ -52,4 +52,5 @@ CMD ["/bin/zsh"]
 # パッケージのインストール
 USER root
 RUN conda install -y pandas matplotlib scikit-learn transformers openai python-dotenv
+RUN pip install japanize_matplotlib
 USER $USERNAME
