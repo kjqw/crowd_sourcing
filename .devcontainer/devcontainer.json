@@ -9,12 +9,17 @@
                 "editor.fontFamily": "HackGen, Consolas, 'Courier New', monospace",
                 "editor.wordWrap": "on",
                 "editor.tabSize": 4,
+                "markdown-preview-enhanced.previewTheme": "github-dark.css",
                 "[markdown]": {
                     "editor.codeActionsOnSave": {
                         "source.fixAll.markdownlint": "explicit"
                     }
                 },
-                "python.defaultInterpreterPath": "/opt/conda/envs/transformers/bin/python",
+                "markdownlint.config": {
+                    "MD024": false,
+                    "MD033": false
+                },
+                // "python.defaultInterpreterPath": "/opt/conda/envs/jupyter/bin/python",
                 "[python]": {
                     "editor.defaultFormatter": "ms-python.black-formatter",
                     "editor.formatOnSave": true,
@@ -27,7 +32,8 @@
                     "black"
                 ],
                 "github.copilot.enable": {
-                    "markdown": "true"
+                    "markdown": "true",
+                    "plaintext": "true",
                 }
             },
             "extensions": [
@@ -37,6 +43,8 @@
                 "ms-toolsai.jupyter",
                 "yzhang.markdown-all-in-one",
                 "davidanson.vscode-markdownlint",
+                "shd101wyy.markdown-preview-enhanced",
+                "oderwat.indent-rainbow",
                 "mhutchie.git-graph",
                 "eamodio.gitlens",
                 "github.copilot"
