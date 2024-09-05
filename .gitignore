@@ -1,20 +1,3 @@
-# 全てのファイルを無視
-*
-
-!.gitignore
-!.gitattributes
-!README.md
-
-!/.devcontainer/
-!/.devcontainer/**
-
-!/crowdsourcing/
-!/crowdsourcing/**
-
-!/demo/
-!/demo/**
-
-/demo/bert/data/**
-/demo/openai/data/**
-/demo/bert/results/**
-/demo/isort.py
+data/
+orders/
+test*
