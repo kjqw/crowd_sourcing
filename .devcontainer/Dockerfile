@@ -53,17 +53,8 @@ CMD ["/bin/zsh"]
 # Condaの初期化
 RUN conda init zsh
 
-# /opt/conda の所有者を root、所有グループを $USERNAME に変更
-RUN sudo chown -R root:$USERNAME /opt/conda
-
-# /opt/conda の権限を root と $USERNAME のみに設定
-RUN sudo chmod -R 775 /opt/conda
-
 # パッケージのインストール
-# USER root
-RUN conda install -y ipykernel pandas matplotlib scikit-learn transformers openai python-dotenv
-RUN pip install japanize_matplotlib
-
-# ユーザーを戻す
-# USER $USERNAME
-RUN conda init zsh
+USER root
+RUN conda install -y ipykernel pandas matplotlib scikit-learn transformers openai python-dotenv && \
+    pip install japanize_matplotlib
+USER $USERNAME
