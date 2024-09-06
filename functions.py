@@ -1,6 +1,11 @@
+import pickle
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
+import torch
+from tqdm import tqdm
 
 
 def preprocess_tsv(input_path: Path, output_path: Path) -> None:
@@ -64,3 +69,70 @@ def extract_long_text(input_path: Path, output_path: Path, min_length: int) -> N
 
     # TSVファイルとして保存
     long_texts.to_csv(output_path, sep="\t", index=False)
+
+
+def load_data(filepath: str) -> pd.DataFrame:
+    """
+    データを読み込み、DataFrameとして返す
+    """
+    return pd.read_csv(filepath, sep="\t")
+
+
+def train_model(model, dataloader, optimizer, epochs: int = 3):
+    """
+    モデルを訓練する関数
+    """
+    model.train()
+    for epoch in range(epochs):
+        progress_bar = tqdm(dataloader, desc=f"Epoch {epoch+1}")
+        for batch in progress_bar:
+            # satisfactionは使わないので除外
+            inputs = {
+                key: val.to(model.device)
+                for key, val in batch.items()
+                if key not in ["satisfaction", "labels"]
+            }
+            labels = batch["labels"].to(model.device)
+
+            optimizer.zero_grad()
+            # `labels` を含む場合は以下の形に修正
+            outputs = model(**inputs, labels=labels)
+            loss = outputs.loss
+            loss.backward()
+            optimizer.step()
+
+            progress_bar.set_postfix({"loss": loss.item()})
+
+    return model
+
+
+def save_model(model, path: str):
+    """
+    モデルの重みを保存する関数
+    """
+    model.save_pretrained(path)
+
+
+def evaluate_model(model, dataloader):
+    """
+    モデルを評価し、正答率を計算する関数
+    """
+    model.eval()
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+        for batch in dataloader:
+            inputs = {
+                key: val.to(model.device)
+                for key, val in batch.items()
+                if key != "satisfaction"
+            }
+            labels = batch["labels"].to(model.device)
+            outputs = model(**inputs)
+            _, preds = torch.max(outputs.logits, dim=1)
+            correct += (preds == labels).sum().item()
+            total += labels.size(0)
+
+    accuracy = correct / total
+    return accuracy

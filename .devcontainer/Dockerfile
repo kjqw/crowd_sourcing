@@ -55,6 +55,6 @@ RUN conda init zsh
 
 # パッケージのインストール
 USER root
-RUN conda install -y ipykernel pandas matplotlib scikit-learn transformers openai python-dotenv && \
+RUN conda install -y ipykernel pandas matplotlib seaborn scikit-learn transformers openai python-dotenv && \
     pip install japanize_matplotlib
 USER $USERNAME
