@@ -20,10 +20,16 @@ min_length = 10
 # min_length = 20
 
 # パスの管理
-data_path = Path("data")
+# data_path = Path(__file__).parent / "data"
+data_path = Path("/workspace/crowd_sourcing/demo/bert/data")
 input_data_path = data_path / f"data_long_texts_{min_length}.tsv"
-satisfaction_model_path = data_path / f"ModelSatisfaction_{MODEL_NAME.split("/")[-1]}_TextMinLength{min_length}"
-label_model_path = data_path / f"ModelLabel_{MODEL_NAME.split("/")[-1]}_TextMinLength{min_length}"
+satisfaction_model_path = (
+    data_path
+    / f"ModelSatisfaction_{MODEL_NAME.split('/')[-1]}_TextMinLength{min_length}"
+)
+label_model_path = (
+    data_path / f"ModelLabel_{MODEL_NAME.split('/')[-1]}_TextMinLength{min_length}"
+)
 
 # %%
 # データの読み込み
@@ -71,8 +77,12 @@ else:
     ) as f:
         texts_df = pickle.load(f)
     texts_df = texts_df.sort_index()  # インデックスの整合性を保つためにソート
-    texts_df["満足度"] = ["満足" if i == 1 else "不満" for i in texts_df["満足度"]] # ラベルを文字列に変換
-    texts_df["ラベル"] = label_encoder.inverse_transform(texts_df["ラベル"]) # ラベルを文字列に変換
+    texts_df["満足度"] = [
+        "満足" if i == 1 else "不満" for i in texts_df["満足度"]
+    ]  # ラベルを文字列に変換
+    texts_df["ラベル"] = label_encoder.inverse_transform(
+        texts_df["ラベル"]
+    )  # ラベルを文字列に変換
     texts = texts_df["文章"].tolist()
 
 # %%
@@ -91,7 +101,9 @@ with torch.no_grad():
     )
     satisfaction_texts = satisfaction_texts.to(device)
     satisfaction_outputs = satisfaction_model(**satisfaction_texts)
-    satisfaction_predictions = torch.argmax(satisfaction_outputs.logits, dim=1).cpu().numpy()
+    satisfaction_predictions = (
+        torch.argmax(satisfaction_outputs.logits, dim=1).cpu().numpy()
+    )
 
     # ラベルの予測
     label_texts = tokenizer(
@@ -158,6 +170,17 @@ label_other_misclassified_as_label_counts = Counter(
     df_compare[~df_compare["ラベル一致"]]["ラベル予測"]
 )
 
+# 2つを足す
+label_misclassified_counts = Counter(
+    {
+        label: label_misclassified_as_other_counts[label]
+        + label_other_misclassified_as_label_counts[label]
+        for label in label_counts.keys()
+    }
+)
+
+label_misclassified_counts
+# %%
 labels = sorted(label_counts.keys())
 
 original_counts = [label_counts[label] for label in labels]
@@ -169,6 +192,8 @@ other_misclassified_as_label_counts = [
     label_other_misclassified_as_label_counts.get(label, 0) for label in labels
 ]
 
+misclassified_counts = [label_misclassified_counts.get(label, 0) for label in labels]
+
 x = range(len(labels))
 
 # プロットの作成
@@ -176,55 +201,79 @@ fig, ax = plt.subplots(figsize=(10, 6))
 
 bar_width = 0.2
 
-# もともとのラベルのデータ数
+# フォントをTimes New Romanに設定
+# plt.rcParams["font.family"] = "Times New Roman"
+
+# Original label counts
 ax.bar(
     x,
     original_counts,
     bar_width,
-    label="元のラベル数",
+    label="Original Labels",
     align="center",
     color="tab:blue",
     hatch="//",
 )
-# もとのラベルとラベル予測が一致したデータ数
+
+# Correctly classified counts
 ax.bar(
     [i + bar_width for i in x],
     correct_counts,
     bar_width,
-    label="予測の一致数",
+    label="Correct Predictions",
     align="center",
     color="tab:green",
     hatch="-",
 )
-# もとのラベルに他のラベルが予測されたデータ数
+
+# Misclassified counts
 ax.bar(
     [i + 2 * bar_width for i in x],
-    misclassified_as_other_counts,
+    misclassified_counts,
     bar_width,
-    label="他のラベルとして予測された数",
+    label="Misclassified",
     align="center",
     color="tab:red",
-    hatch="+",
-)
-# 他のラベルがラベルに予測されたデータ数
-ax.bar(
-    [i + 3 * bar_width for i in x],
-    other_misclassified_as_label_counts,
-    bar_width,
-    label="他のラベルから予測された数",
-    align="center",
-    color="tab:orange",
     hatch="x",
 )
 
-ax.set_xlabel("ラベル")
-ax.set_ylabel("件数")
+
+# # もとのラベルに他のラベルが予測されたデータ数
+# ax.bar(
+#     [i + 2 * bar_width for i in x],
+#     misclassified_as_other_counts,
+#     bar_width,
+#     label="他のラベルとして予測された数",
+#     align="center",
+#     color="tab:red",
+#     hatch="+",
+# )
+# # 他のラベルがラベルに予測されたデータ数
+# ax.bar(
+#     [i + 3 * bar_width for i in x],
+#     other_misclassified_as_label_counts,
+#     bar_width,
+#     label="他のラベルから予測された数",
+#     align="center",
+#     color="tab:orange",
+#     hatch="x",
+# )
+
+ax.set_xlabel("Labels", fontsize=14)
+ax.set_ylabel("Counts", fontsize=14)
 # ax.set_title("ラベルごとの分類結果")
 ax.set_xticks([i + 1.5 * bar_width for i in x])
 ax.set_xticklabels(labels, rotation=90)
-ax.legend()
+ax.legend(fontsize=14)
 
 plt.tight_layout()
+
+# %%
+save_path = Path("/workspace/crowd_sourcing/data/figs/fig1.png")
+save_path.parent.mkdir(exist_ok=True, parents=True)
+fig.savefig(save_path)
+# %%
+print(plt.rcParams["font.family"])
 
 # %%
 fig_path = (
