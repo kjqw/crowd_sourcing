@@ -1,9 +1,10 @@
 # %%
 from pathlib import Path
 
+import pandas as pd
 import torch
 from classes import TextDataset
-from functions import evaluate_model, load_data, save_model, train_model
+from functions import evaluate_model, train_model
 from sklearn.model_selection import train_test_split
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
@@ -18,7 +19,7 @@ SAVE_DIR = Path(__file__).parent / "model"
 
 # %%
 # データ読み込み
-data = load_data("./data/data_long_texts_10.tsv")
+data = pd.read_csv(DATA_PATH, delimiter="\t")
 
 # %%
 # トーカナイザとモデルの設定
@@ -45,7 +46,8 @@ trained_model = train_model(model, train_loader, optimizer)
 
 # %%
 # モデルの保存
-save_model(trained_model, "./saved_models/model")
+save_path = Path(__file__).parent / "saved_models" / "model"
+trained_model.save_pretrained(save_path)
 
 # %%
 # モデルの評価

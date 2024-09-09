@@ -12,32 +12,18 @@ class TextDataset(Dataset):
     def __init__(
         self, data: pd.DataFrame, tokenizer: BertTokenizer, max_length: int = 128
     ):
-        self.texts = data["文章"].tolist()
+        self.texts = data["text"].tolist()
 
-        # ラベルを数値化するマッピング
-        self.label_mapping = {
-            "医療・福祉": 0,
-            "買物・飲食": 1,
-            "住宅環境": 2,
-            "移動・交通": 3,
-            "遊び・娯楽": 4,
-            "子育て": 5,
-            "初等・中等教育": 6,
-            "地域行政": 7,
-            "デジタル生活": 8,
-            "公共空間": 9,
-            "都市景観": 10,
-            "自然景観": 11,
-            "自然の恵み": 12,
-            "環境共生": 13,
-            "自然災害": 14,
-            "事故・犯罪": 15,
+        # ラベルを自動的に数値化
+        self.label_to_id = {
+            label: idx for idx, label in enumerate(data["label"].unique())
         }
+        self.id_to_label = {idx: label for label, idx in self.label_to_id.items()}
 
-        # ラベルを数値に変換
-        self.labels = data["ラベル"].map(self.label_mapping).tolist()
+        # 数値化したラベルを保持
+        self.labels = data["label"].map(self.label_to_id).tolist()
         self.satisfaction = (
-            data["満足度"].apply(lambda x: 1 if x == "満足" else 0).tolist()
+            data["satisfaction"].apply(lambda x: 1 if x == "満足" else 0).tolist()
         )
         self.tokenizer = tokenizer
         self.max_length = max_length
@@ -59,3 +45,9 @@ class TextDataset(Dataset):
         item["labels"] = torch.tensor(self.labels[idx])
         item["satisfaction"] = torch.tensor(self.satisfaction[idx])
         return item
+
+    def get_label_mapping(self) -> dict:
+        """
+        ラベルと数値IDのマッピングを取得する
+        """
+        return self.label_to_id

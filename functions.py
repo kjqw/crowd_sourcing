@@ -38,7 +38,7 @@ def preprocess_tsv(input_path: Path, output_path: Path) -> None:
 
     # データフレームに変換
     processed_df = pd.DataFrame(
-        processed_data, columns=["ラベル", "満足度", "文章", "会員ID"]
+        processed_data, columns=["label", "satisfaction", "text", "id"]
     )
 
     # 欠損値の削除
@@ -65,17 +65,10 @@ def extract_long_text(input_path: Path, output_path: Path, min_length: int) -> N
     df = pd.read_csv(input_path, delimiter="\t")
 
     # 文字数が最小値以上の文章を抽出
-    long_texts = df[df["文章"].str.len() >= min_length]
+    long_texts = df[df["text"].str.len() >= min_length]
 
     # TSVファイルとして保存
     long_texts.to_csv(output_path, sep="\t", index=False)
-
-
-def load_data(filepath: str) -> pd.DataFrame:
-    """
-    データを読み込み、DataFrameとして返す
-    """
-    return pd.read_csv(filepath, sep="\t")
 
 
 def train_model(model, dataloader, optimizer, epochs: int = 3):
@@ -90,7 +83,7 @@ def train_model(model, dataloader, optimizer, epochs: int = 3):
             inputs = {
                 key: val.to(model.device)
                 for key, val in batch.items()
-                if key not in ["satisfaction", "labels"]
+                if key not in ["satisfaction"]
             }
             labels = batch["labels"].to(model.device)
 
@@ -104,13 +97,6 @@ def train_model(model, dataloader, optimizer, epochs: int = 3):
             progress_bar.set_postfix({"loss": loss.item()})
 
     return model
-
-
-def save_model(model, path: str):
-    """
-    モデルの重みを保存する関数
-    """
-    model.save_pretrained(path)
 
 
 def evaluate_model(model, dataloader):
