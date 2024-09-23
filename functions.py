@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 from classes import CustomDataset, TextClassifier
+from sklearn.preprocessing import LabelEncoder
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -113,3 +114,14 @@ def train_model(
         tqdm.write(
             f"Epoch {epoch}: 訓練損失: {train_loss}, 訓練正解率: {train_acc}, 検証正解率: {val_acc}"
         )
+
+
+# 予測関数の適用をまとめて行う
+def predict_and_compare(
+    row: pd.Series, classifier: TextClassifier, label_encoder: LabelEncoder
+) -> pd.Series:
+    prediction = classifier.predict_text(
+        row["text"], label_encoder
+    )  # textに対して予測を行う
+    correct = prediction == row["original_label"]  # 正解かどうかを判定
+    return pd.Series([prediction, correct], index=["predicted_label", "is_correct"])

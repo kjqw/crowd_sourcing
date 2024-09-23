@@ -1,4 +1,5 @@
 # %%
+import json
 import random
 from pathlib import Path
 
@@ -23,7 +24,7 @@ DATA_PATH = (
 MAX_RANDOM_SEED = 100000  # 乱数の最大値
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # デバイス
 
-MODEL_NAME_BERT = "google-bert/bert-base-multilingual-cased"
+MODEL_NAME_BERT = "google-bert/bert-base-multilingual-cased"  # 事前学習済みモデル
 
 # %%
 # データを読み込み、ラベルを数値に変換
@@ -38,7 +39,7 @@ df["label_id_satisfaction"] = label_encoder_satisfaction.fit_transform(
 )
 
 # %%
-for i in range(4, TRAINING_REPEATS):
+for i in range(TRAINING_REPEATS):
     # 訓練データとテストデータの分割
     RANDOM_STATE = random.randint(0, MAX_RANDOM_SEED)
     (
@@ -82,16 +83,6 @@ for i in range(4, TRAINING_REPEATS):
     save_path_content_model = Path(__file__).parent / "models" / f"content_model_{i}"
     classifier_content.save_model(save_path_content_model)
 
-    # 訓練に使用したハイパーパラメータを保存
-    with open(Path(__file__).parent / "models" / f"hyperparameters_{i}.txt", "w") as f:
-        f.write(
-            f"RANDOM_STATE: {RANDOM_STATE}\n"
-            f"MAX_LEN: {MAX_LEN}\n"
-            f"BATCH_SIZE: {BATCH_SIZE}\n"
-            f"LR: {LR}\n"
-            f"EPOCHS: {EPOCHS}\n"
-        )
-
     # GPUのメモリを解放
     del classifier_content
     torch.cuda.empty_cache()
@@ -123,6 +114,20 @@ for i in range(4, TRAINING_REPEATS):
         Path(__file__).parent / "models" / f"satisfaction_model_{i}"
     )
     classifier_satisfaction.save_model(save_path_satisfaction_model)
+
+    # 訓練に使用したハイパーパラメータを保存
+    with open(Path(__file__).parent / "models" / f"hyperparameters_{i}.json", "w") as f:
+        json.dump(
+            {
+                "RANDOM_STATE": RANDOM_STATE,
+                "TEST_SIZE": TEST_SIZE,
+                "MAX_LEN": MAX_LEN,
+                "BATCH_SIZE": BATCH_SIZE,
+                "EPOCHS": EPOCHS,
+                "LR": LR,
+            },
+            f,
+        )
 
     # GPUのメモリを解放
     del classifier_satisfaction

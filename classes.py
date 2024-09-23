@@ -217,27 +217,28 @@ class TextClassifier:
         str
             予測されたラベル
         """
-        # テキストをトークン化
-        encoding = self.tokenizer.encode_plus(
-            text,
-            add_special_tokens=True,
-            max_length=self.max_length,
-            return_token_type_ids=False,
-            padding="max_length",
-            truncation=True,
-            return_attention_mask=True,
-            return_tensors="pt",
-        )
+        with torch.no_grad():
+            # テキストをトークン化
+            encoding = self.tokenizer.encode_plus(
+                text,
+                add_special_tokens=True,
+                max_length=self.max_length,
+                return_token_type_ids=False,
+                padding="max_length",
+                truncation=True,
+                return_attention_mask=True,
+                return_tensors="pt",
+            )
 
-        input_ids = encoding["input_ids"].to(self.device)
-        attention_mask = encoding["attention_mask"].to(self.device)
+            input_ids = encoding["input_ids"].to(self.device)
+            attention_mask = encoding["attention_mask"].to(self.device)
 
-        # モデルにデータを入力し、予測結果を得る
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-        _, preds = torch.max(outputs.logits, dim=1)
+            # モデルにデータを入力し、予測結果を得る
+            outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+            _, preds = torch.max(outputs.logits, dim=1)
 
-        # ラベルを数値から元の文字列に変換
-        return label_encoder.inverse_transform(preds.cpu().numpy())[0]
+            # ラベルを数値から元の文字列に変換
+            return label_encoder.inverse_transform(preds.cpu().numpy())[0]
 
     def save_model(self, save_path: Path) -> None:
         """
