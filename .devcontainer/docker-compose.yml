@@ -1,7 +1,6 @@
 services:
   crowd_sourcing:
     container_name: crowd_sourcing
-    # image: pytorch:transformers
     build:
       context: ./
       dockerfile: ./Dockerfile

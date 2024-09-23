@@ -19,7 +19,7 @@
                     "MD024": false,
                     "MD033": false
                 },
-                // "python.defaultInterpreterPath": "/opt/conda/envs/jupyter/bin/python",
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
                 "[python]": {
                     "editor.defaultFormatter": "ms-python.black-formatter",
                     "editor.formatOnSave": true,
