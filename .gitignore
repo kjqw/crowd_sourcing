@@ -1,5 +1,5 @@
 __pycache__/
 data/
 orders/
-saved_models/
+models/
 test*

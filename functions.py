@@ -1,15 +1,11 @@
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
-import torch
 from classes import CustomDataset, TextClassifier
-from sklearn.preprocessing import LabelEncoder
 from torch.optim import AdamW
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from tqdm import tqdm
-from transformers import AdamW, BertForSequenceClassification, BertTokenizer
+from transformers import BertTokenizer
 
 
 def preprocess_tsv(input_path: Path, output_path: Path) -> None:
@@ -114,6 +110,6 @@ def train_model(
     for epoch in range(epochs):
         train_acc, train_loss = classifier.train(train_loader, optimizer, epoch)
         val_acc = classifier.evaluate(val_loader)
-        print(
-            f"Epoch {epoch}: Train Loss: {train_loss}, Train Acc: {train_acc}, Val Acc: {val_acc}"
+        tqdm.write(
+            f"Epoch {epoch}: 訓練損失: {train_loss}, 訓練正解率: {train_acc}, 検証正解率: {val_acc}"
         )

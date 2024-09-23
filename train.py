@@ -1,33 +1,29 @@
 # %%
+import random
 from pathlib import Path
 
 import functions
 import pandas as pd
 import torch
-from classes import CustomDataset, TextClassifier
+from classes import TextClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 # %%
-BATCH_SIZE = 16
-EPOCHS = 5
+TRAINING_REPEATS = 10  # 訓練の繰り返し回数
+EPOCHS = 5  # 一訓練あたりのエポック数
+BATCH_SIZE = 16  # バッチサイズ
 MAX_LEN = 128  # 最大トークン数
 LR = 2e-5  # 学習率
 TEST_SIZE = 0.2  # テストデータの割合
-RANDOM_STATE = 0  # ランダムシード
+DATA_PATH = (
+    Path(__file__).parent / "data" / "data_long_texts_10.tsv"
+)  # 教師データのパス
+MAX_RANDOM_SEED = 100000  # 乱数の最大値
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # デバイス
 
 MODEL_NAME_BERT = "google-bert/bert-base-multilingual-cased"
-# MODEL_NAME_ZEROSHOT = "MoritzLaurer/deberta-v3-large-zeroshot-v2.0"
-
-DATA_PATH = Path(__file__).parent / "data" / "data_long_texts_10.tsv"
-SAVE_PATH_CONTENT_MODEL = Path(__file__).parent / "saved_models" / "model_content_1"
-SAVE_PATH_SATISFACTION_MODEL = (
-    Path(__file__).parent / "saved_models" / "model_satisfaction_1"
-)
-
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # %%
 # データを読み込み、ラベルを数値に変換
@@ -42,90 +38,104 @@ df["label_id_satisfaction"] = label_encoder_satisfaction.fit_transform(
 )
 
 # %%
-# 訓練データとテストデータの分割
-(
-    train_texts,
-    val_texts,
-    train_labels_content,
-    val_labels_content,
-    train_labels_satisfaction,
-    val_labels_satisfaction,
-) = train_test_split(
-    df["text"],
-    df["label_id_content"],
-    df["label_id_satisfaction"],
-    test_size=TEST_SIZE,
-    random_state=RANDOM_STATE,
-)
+for i in range(4, TRAINING_REPEATS):
+    # 訓練データとテストデータの分割
+    RANDOM_STATE = random.randint(0, MAX_RANDOM_SEED)
+    (
+        train_texts,
+        val_texts,
+        train_labels_content,
+        val_labels_content,
+        train_labels_satisfaction,
+        val_labels_satisfaction,
+    ) = train_test_split(
+        df["text"],
+        df["label_id_content"],
+        df["label_id_satisfaction"],
+        test_size=TEST_SIZE,
+        random_state=RANDOM_STATE,
+    )
 
-# %%
-# モデル初期化
-classifier_content = TextClassifier(
-    MODEL_NAME_BERT,
-    num_labels=len(label_encoder_content.classes_),
-    max_length=MAX_LEN,
-    device=DEVICE,
-)
+    # モデル初期化
+    classifier_content = TextClassifier(
+        MODEL_NAME_BERT,
+        num_labels=len(label_encoder_content.classes_),
+        max_length=MAX_LEN,
+        device=DEVICE,
+    )
 
-# %%
-# 訓練
-functions.train_model(
-    classifier_content,
-    train_texts,
-    val_texts,
-    train_labels_content,
-    val_labels_content,
-    MAX_LEN,
-    BATCH_SIZE,
-    LR,
-    EPOCHS,
-)
+    # 訓練
+    tqdm.write(f"内容分類モデルの訓練 {i + 1}/{TRAINING_REPEATS}")
+    functions.train_model(
+        classifier_content,
+        train_texts,
+        val_texts,
+        train_labels_content,
+        val_labels_content,
+        MAX_LEN,
+        BATCH_SIZE,
+        LR,
+        EPOCHS,
+    )
 
-# %%
-# モデル保存
-classifier_content.save_model(SAVE_PATH_CONTENT_MODEL)
+    # モデル保存
+    save_path_content_model = Path(__file__).parent / "models" / f"content_model_{i}"
+    classifier_content.save_model(save_path_content_model)
 
-# %%
-# 変数を削除
-del classifier_content
+    # 訓練に使用したハイパーパラメータを保存
+    with open(Path(__file__).parent / "models" / f"hyperparameters_{i}.txt", "w") as f:
+        f.write(
+            f"RANDOM_STATE: {RANDOM_STATE}\n"
+            f"MAX_LEN: {MAX_LEN}\n"
+            f"BATCH_SIZE: {BATCH_SIZE}\n"
+            f"LR: {LR}\n"
+            f"EPOCHS: {EPOCHS}\n"
+        )
 
-# %%
-# GPUのメモリを解放
-torch.cuda.empty_cache()
+    # GPUのメモリを解放
+    del classifier_content
+    torch.cuda.empty_cache()
 
-# %%
-# モデル初期化
-classifier_satisfaction = TextClassifier(
-    MODEL_NAME_BERT,
-    num_labels=len(label_encoder_satisfaction.classes_),
-    max_length=MAX_LEN,
-    device=DEVICE,
-)
+    # モデル初期化
+    classifier_satisfaction = TextClassifier(
+        MODEL_NAME_BERT,
+        num_labels=len(label_encoder_satisfaction.classes_),
+        max_length=MAX_LEN,
+        device=DEVICE,
+    )
 
-# %%
-# 訓練
-functions.train_model(
-    classifier_satisfaction,
-    train_texts,
-    val_texts,
-    train_labels_satisfaction,
-    val_labels_satisfaction,
-    MAX_LEN,
-    BATCH_SIZE,
-    LR,
-    EPOCHS,
-)
+    # 訓練
+    tqdm.write(f"満足度分類モデルの訓練 {i + 1}/{TRAINING_REPEATS}")
+    functions.train_model(
+        classifier_satisfaction,
+        train_texts,
+        val_texts,
+        train_labels_satisfaction,
+        val_labels_satisfaction,
+        MAX_LEN,
+        BATCH_SIZE,
+        LR,
+        EPOCHS,
+    )
 
-# %%
-# モデル保存
-classifier_satisfaction.save_model(SAVE_PATH_SATISFACTION_MODEL)
+    # モデル保存
+    save_path_satisfaction_model = (
+        Path(__file__).parent / "models" / f"satisfaction_model_{i}"
+    )
+    classifier_satisfaction.save_model(save_path_satisfaction_model)
 
-# %%
-# 変数を削除
-del classifier_satisfaction
+    # GPUのメモリを解放
+    del classifier_satisfaction
+    torch.cuda.empty_cache()
 
-# %%
-# GPUのメモリを解放
-torch.cuda.empty_cache()
+    # メモリを解放
+    del (
+        train_texts,
+        val_texts,
+        train_labels_content,
+        val_labels_content,
+        train_labels_satisfaction,
+        val_labels_satisfaction,
+    )
 
 # %%
