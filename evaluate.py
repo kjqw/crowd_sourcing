@@ -90,6 +90,24 @@ df_result_satisfaction_tf = df_result_satisfaction[
 df_result_content_tf = df_result_content_tf.groupby("original_label").sum()
 df_result_satisfaction_tf = df_result_satisfaction_tf.groupby("original_label").sum()
 
+# %%
+# ラベルの合計数を列に追加
+df_result_content_tf["total_count"] = (
+    df_result_content_tf["true_count"] + df_result_content_tf["false_count"]
+)
+df_result_satisfaction_tf["total_count"] = (
+    df_result_satisfaction_tf["true_count"] + df_result_satisfaction_tf["false_count"]
+)
+
+# ラベルの合計数の列を左に移動
+df_result_content_tf = df_result_content_tf[
+    ["total_count", "true_count", "false_count"]
+].copy()
+df_result_satisfaction_tf = df_result_satisfaction_tf[
+    ["total_count", "true_count", "false_count"]
+].copy()
+
+# 正解率を列に追加
 df_result_content_tf["accuracy"] = df_result_content_tf["true_count"] / (
     df_result_content_tf["true_count"] + df_result_content_tf["false_count"]
 )
