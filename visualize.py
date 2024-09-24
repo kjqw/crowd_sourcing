@@ -10,9 +10,13 @@ from matplotlib import pyplot as plt
 
 # %%
 # 予測結果のデータを読み込む
-with open(Path(__file__).parent / "data" / "df_result_content_tf.pkl", "rb") as f:
+with open(
+    Path(__file__).parent / "data/pickle" / "df_result_content_tf.pkl", "rb"
+) as f:
     df_result_content_tf = pickle.load(f)
-with open(Path(__file__).parent / "data" / "df_result_satisfaction_tf.pkl", "rb") as f:
+with open(
+    Path(__file__).parent / "data/pickle" / "df_result_satisfaction_tf.pkl", "rb"
+) as f:
     df_result_satisfaction_tf = pickle.load(f)
 
 # %%

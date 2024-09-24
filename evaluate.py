@@ -12,10 +12,12 @@ MODEL_NUM = 10  # モデルの数
 df_results_content = []
 df_results_satisfaction = []
 for i in range(MODEL_NUM):
-    with open(Path(__file__).parent / "data" / f"df_result_content_{i}.pkl", "rb") as f:
+    with open(
+        Path(__file__).parent / "data/pickle" / f"df_result_content_{i}.pkl", "rb"
+    ) as f:
         df_results_content.append(pickle.load(f))
     with open(
-        Path(__file__).parent / "data" / f"df_result_satisfaction_{i}.pkl", "rb"
+        Path(__file__).parent / "data/pickle" / f"df_result_satisfaction_{i}.pkl", "rb"
     ) as f:
         df_results_satisfaction.append(pickle.load(f))
 
@@ -129,8 +131,12 @@ print(
 
 # %%
 # 結果を保存
-with open(Path(__file__).parent / "data" / "df_result_content_tf.pkl", "wb") as f:
+with open(
+    Path(__file__).parent / "data/pickle" / "df_result_content_tf.pkl", "wb"
+) as f:
     pickle.dump(df_result_content_tf, f)
-with open(Path(__file__).parent / "data" / "df_result_satisfaction_tf.pkl", "wb") as f:
+with open(
+    Path(__file__).parent / "data/pickle" / "df_result_satisfaction_tf.pkl", "wb"
+) as f:
     pickle.dump(df_result_satisfaction_tf, f)
 # %%

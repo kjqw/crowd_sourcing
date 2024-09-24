@@ -110,11 +110,13 @@ for i in range(MODEL_NUM):
     )
 
     # 結果を保存
-    with open(Path(__file__).parent / "data" / f"df_result_content_{i}.pkl", "wb") as f:
+    with open(
+        Path(__file__).parent / "data/pickle" / f"df_result_content_{i}.pkl", "wb"
+    ) as f:
         pickle.dump(df_result_content, f)
 
     with open(
-        Path(__file__).parent / "data" / f"df_result_satisfaction_{i}.pkl", "wb"
+        Path(__file__).parent / "data/pickle" / f"df_result_satisfaction_{i}.pkl", "wb"
     ) as f:
         pickle.dump(df_result_satisfaction, f)
 
