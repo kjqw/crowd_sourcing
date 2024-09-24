@@ -21,6 +21,7 @@ for i in range(MODEL_NUM):
 
 
 # %%
+# 複数の結果を1つのデータフレームに結合
 df_result_content = df_results_content[0][["text", "original_label"]].copy()
 for i in range(MODEL_NUM):
     df_result_content = pd.merge(
@@ -50,8 +51,6 @@ df_result_content["false_count"] = df_result_content.filter(like="is_correct").a
 df_result_content
 
 # %%
-df_result_content["true_count"].sum(), df_result_content["false_count"].sum()
-# %%
 df_result_satisfaction = df_results_satisfaction[0][["text", "original_label"]].copy()
 for i in range(MODEL_NUM):
     df_result_satisfaction = pd.merge(
@@ -78,10 +77,9 @@ df_result_satisfaction["false_count"] = df_result_satisfaction.filter(
 
 # %%
 df_result_satisfaction
-# %%
-df_result_satisfaction["true_count"].sum(), df_result_satisfaction["false_count"].sum()
 
 # %%
+# 元のラベルごとに正解数と不正解数を集計
 df_result_content_tf = df_result_content[
     ["original_label", "true_count", "false_count"]
 ].copy()
@@ -92,7 +90,6 @@ df_result_satisfaction_tf = df_result_satisfaction[
 df_result_content_tf = df_result_content_tf.groupby("original_label").sum()
 df_result_satisfaction_tf = df_result_satisfaction_tf.groupby("original_label").sum()
 
-# %%
 df_result_content_tf["accuracy"] = df_result_content_tf["true_count"] / (
     df_result_content_tf["true_count"] + df_result_content_tf["false_count"]
 )
@@ -104,4 +101,18 @@ df_result_satisfaction_tf["accuracy"] = df_result_satisfaction_tf["true_count"] 
 df_result_content_tf
 # %%
 df_result_satisfaction_tf
+# %%
+print(
+    f"内容予測の全体の正解率: {df_result_content_tf['true_count'].sum() /(df_result_content_tf['true_count'].sum() + df_result_content_tf['false_count'].sum())}"
+)
+print(
+    f"満足度予測の全体の正解率: {df_result_satisfaction_tf['true_count'].sum() /(df_result_satisfaction_tf['true_count'].sum() + df_result_satisfaction_tf['false_count'].sum())}"
+)
+
+# %%
+# 結果を保存
+with open(Path(__file__).parent / "data" / "df_result_content_tf.pkl", "wb") as f:
+    pickle.dump(df_result_content_tf, f)
+with open(Path(__file__).parent / "data" / "df_result_satisfaction_tf.pkl", "wb") as f:
+    pickle.dump(df_result_satisfaction_tf, f)
 # %%
