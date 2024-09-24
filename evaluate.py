@@ -19,19 +19,21 @@ for i in range(MODEL_NUM):
     ) as f:
         df_results_satisfaction.append(pickle.load(f))
 
-# %%
-# 最初のデータフレームのtextとoriginal_labelを基準に他のデータフレームを結合
-df_result_content = df_results_content[0][["text", "original_label"]].copy()
 
-# 他のデータフレームからpredicted_labelとis_correctを追加していく
+# %%
+df_result_content = df_results_content[0][["text", "original_label"]].copy()
 for i in range(MODEL_NUM):
-    df_result_content = df_result_content.join(
-        df_results_content[i][["predicted_label", "is_correct"]].rename(
+    df_result_content = pd.merge(
+        df_result_content,
+        df_results_content[i][
+            ["text", "original_label", "predicted_label", "is_correct"]
+        ].rename(
             columns={
                 "predicted_label": f"predicted_label_{i+1}",
                 "is_correct": f"is_correct_{i+1}",
             }
         ),
+        on=["text", "original_label"],
         how="outer",
     )
 
@@ -43,77 +45,63 @@ df_result_content["false_count"] = df_result_content.filter(like="is_correct").a
     lambda row: (row == False).sum(), axis=1
 )
 
+# %%
 # 結合された結果を表示
 df_result_content
-
 
 # %%
 df_result_content["true_count"].sum(), df_result_content["false_count"].sum()
 # %%
-# 全indexを取得
-indices_0 = df_results_content[0].index.tolist()
-indices_1 = df_results_content[1].index.tolist()
+df_result_satisfaction = df_results_satisfaction[0][["text", "original_label"]].copy()
+for i in range(MODEL_NUM):
+    df_result_satisfaction = pd.merge(
+        df_result_satisfaction,
+        df_results_satisfaction[i][
+            ["text", "original_label", "predicted_label", "is_correct"]
+        ].rename(
+            columns={
+                "predicted_label": f"predicted_label_{i+1}",
+                "is_correct": f"is_correct_{i+1}",
+            }
+        ),
+        on=["text", "original_label"],
+        how="outer",
+    )
 
-common_indices = list(set(indices_0) & set(indices_1))
-common_indices
+# is_correctのTrueとFalseをカウントする新しい列を作成
+df_result_satisfaction["true_count"] = df_result_satisfaction.filter(
+    like="is_correct"
+).apply(lambda row: (row == True).sum(), axis=1)
+df_result_satisfaction["false_count"] = df_result_satisfaction.filter(
+    like="is_correct"
+).apply(lambda row: (row == False).sum(), axis=1)
 
 # %%
-# indexがnのデータを表示
-n = 1024
-print(df_results_content[0].loc[n])
-print(df_results_content[1].loc[n])
+df_result_satisfaction
 # %%
+df_result_satisfaction["true_count"].sum(), df_result_satisfaction["false_count"].sum()
 
-# # %%
-# # 正解率を集計
-# correct_rates_content_all = []
-# correct_rates_satisfaction_all = []
-# correct_rates_content_groupyby = []
-# correct_rates_satisfaction_groupby = []
-# for i in range(MODEL_NUM):
-#     correct_rates_content_all.append(df_results_content[i]["is_correct"].mean())
-#     correct_rates_content_groupyby.append(
-#         df_results_content[i].groupby("original_label")["is_correct"].mean()
-#     )
-#     correct_rates_satisfaction_all.append(
-#         df_results_satisfaction[i]["is_correct"].mean()
-#     )
-#     correct_rates_satisfaction_groupby.append(
-#         df_results_satisfaction[i].groupby("original_label")["is_correct"].mean()
-#     )
+# %%
+df_result_content_tf = df_result_content[
+    ["original_label", "true_count", "false_count"]
+].copy()
+df_result_satisfaction_tf = df_result_satisfaction[
+    ["original_label", "true_count", "false_count"]
+].copy()
 
-# # %%
-# correct_rates_content_groupyby[0]
-# # %%
-# # 正解率の平均と分散を計算
-# correct_rates_content_all = pd.Series(correct_rates_content_all)
-# correct_rates_satisfaction_all = pd.Series(correct_rates_satisfaction_all)
-# correct_rates_content_groupyby = pd.DataFrame(correct_rates_content_groupyby).T
-# correct_rates_satisfaction_groupby = pd.DataFrame(correct_rates_satisfaction_groupby).T
-# correct_rates_content_all_mean = correct_rates_content_all.mean()
-# correct_rates_satisfaction_all_mean = correct_rates_satisfaction_all.mean()
-# correct_rates_content_all_std = correct_rates_content_all.std()
-# correct_rates_satisfaction_all_std = correct_rates_satisfaction_all.std()
-# correct_rates_content_groupyby_mean = correct_rates_content_groupyby.mean()
-# correct_rates_satisfaction_groupby_mean = correct_rates_satisfaction_groupby.mean()
-# correct_rates_content_groupyby_std = correct_rates_content_groupyby.std()
-# correct_rates_satisfaction_groupby_std = correct_rates_satisfaction_groupby.std()
+df_result_content_tf = df_result_content_tf.groupby("original_label").sum()
+df_result_satisfaction_tf = df_result_satisfaction_tf.groupby("original_label").sum()
 
-# # %%
-# # 結果を出力
-# print("Content Classification")
-# print(f"Mean: {correct_rates_content_all_mean:.2f}")
-# print(f"Std: {correct_rates_content_all_std:.2f}")
-# print()
-# print("Satisfaction Classification")
-# print(f"Mean: {correct_rates_satisfaction_all_mean:.2f}")
-# print(f"Std: {correct_rates_satisfaction_all_std:.2f}")
-# print()
-# print("Content Classification Groupby")
-# print(correct_rates_content_groupyby_mean)
-# print(correct_rates_content_groupyby_std)
-# print()
-# print("Satisfaction Classification Groupby")
-# print(correct_rates_satisfaction_groupby_mean)
-# print(correct_rates_satisfaction_groupby_std)
-# # %%
+# %%
+df_result_content_tf["accuracy"] = df_result_content_tf["true_count"] / (
+    df_result_content_tf["true_count"] + df_result_content_tf["false_count"]
+)
+df_result_satisfaction_tf["accuracy"] = df_result_satisfaction_tf["true_count"] / (
+    df_result_satisfaction_tf["true_count"] + df_result_satisfaction_tf["false_count"]
+)
+
+# %%
+df_result_content_tf
+# %%
+df_result_satisfaction_tf
+# %%
