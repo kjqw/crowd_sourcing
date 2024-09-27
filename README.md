@@ -41,8 +41,10 @@ Ubuntu 22.04 LTSの`/home/kjqw/university/.cache/`にtransformersのキャッシ
 
 ## データ
 
-アンケート内容: `crowdsourcing/アンケート項目.json`
-アンケート結果: `crowdsourcing/20240217_地域幸福度/【神奈川県民限定】地域幸福度についてのアンケート/3589290434_row.tsv`
+- アンケート内容
+  - `crowdsourcing/アンケート項目.json`
+- アンケート結果
+  - `crowdsourcing/20240217_地域幸福度/【神奈川県民限定】地域幸福度についてのアンケート/3589290434_row.tsv`
 
 ## ファイルの説明
 
