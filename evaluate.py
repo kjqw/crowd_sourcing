@@ -130,7 +130,38 @@ print(
 )
 
 # %%
+# 予測されたラベルをまとめる
+df_result_content["combined_predicted_labels"] = df_result_content[
+    [f"predicted_label_{i}" for i in range(1, 11)]
+].apply(lambda row: [label for label in row if pd.notna(label)], axis=1)
+df_result_satisfaction["combined_predicted_labels"] = df_result_satisfaction[
+    [f"predicted_label_{i}" for i in range(1, 11)]
+].apply(lambda row: [label for label in row if pd.notna(label)], axis=1)
+
+# %%
+df_result_content_combined = df_result_content[
+    ["text", "original_label", "combined_predicted_labels", "true_count", "false_count"]
+]
+df_result_satisfaction_combined = df_result_satisfaction[
+    ["text", "original_label", "combined_predicted_labels", "true_count", "false_count"]
+]
+
+# %%
+df_result_content_combined
+# %%
+df_result_satisfaction_combined
+
+# %%
 # 結果を保存
+with open(
+    Path(__file__).parent / "data/pickle" / "df_result_content_combined.pkl", "wb"
+) as f:
+    pickle.dump(df_result_content_combined, f)
+with open(
+    Path(__file__).parent / "data/pickle" / "df_result_satisfaction_combined.pkl", "wb"
+) as f:
+    pickle.dump(df_result_satisfaction_combined, f)
+
 with open(
     Path(__file__).parent / "data/pickle" / "df_result_content_tf.pkl", "wb"
 ) as f:
