@@ -11,12 +11,6 @@ services:
       - type: bind
         source: ../
         target: /workspace/crowd_sourcing
-      - type: bind
-        source: /home/kjqw/.gitconfig
-        target: /workspace/.gitconfig
-      - type: bind
-        source: /home/kjqw/.ssh
-        target: /workspace/.ssh
     working_dir: /workspace
     runtime: nvidia
     deploy:
