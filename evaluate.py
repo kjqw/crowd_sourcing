@@ -152,6 +152,12 @@ df_result_content_combined
 df_result_satisfaction_combined
 
 # %%
+# なぜか重複するデータが存在している
+print(f"元のデータ数: {df_result_satisfaction_combined['text'].unique().__len__()}")
+print(f"データフレームの行数: {df_result_satisfaction_combined.shape[0]}")
+
+
+# %%
 # 結果を保存
 with open(
     Path(__file__).parent / "data/pickle" / "df_result_content_combined.pkl", "wb"
